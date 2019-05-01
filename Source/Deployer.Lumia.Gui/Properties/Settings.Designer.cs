@@ -70,5 +70,17 @@ namespace Deployer.Lumia.Gui.Properties {
                 this["CleanDownloadedBeforeDeployment"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DiskPreparer {
+            get {
+                return ((string)(this["DiskPreparer"]));
+            }
+            set {
+                this["DiskPreparer"] = value;
+            }
+        }
     }
 }

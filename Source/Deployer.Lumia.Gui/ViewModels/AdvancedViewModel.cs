@@ -24,12 +24,13 @@ namespace Deployer.Lumia.Gui.ViewModels
         private readonly IDeploymentContext context;
 
         private readonly ObservableAsPropertyHelper<ByteSize> sizeReservedForWindows;
+        private DiskLayoutPreparerViewModel selectedPreparer;
 
         public AdvancedViewModel(ISettingsService settingsService, IFileSystemOperations fileSystemOperations,
             UIServices uiServices,
             IDeviceProvider deviceProvider, IOperationProgress progress, StatusViewModel statusViewModel, IPhone phone,
             IDeploymentContext context,
-                IEnumerable<Meta<IHighLevelWindowsDeployer>> windowsDeployers)
+                IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers)
         {
             StatusViewModel = statusViewModel;
             this.settingsService = settingsService;
@@ -38,9 +39,11 @@ namespace Deployer.Lumia.Gui.ViewModels
             this.progress = progress;
             this.phone = phone;
             this.context = context;
-            this.WindowsDeployers = windowsDeployers
+
+            DiskPreparers = diskPreparers
                 .Where(x => !x.Metadata.Keys.Contains("IsNull"))
-                .Select(x => new WindowsDeployerViewModel((string) x.Metadata["Name"], x.Value));
+                .Select(x => new DiskLayoutPreparerViewModel((string) x.Metadata["Name"], x.Value))
+                .ToList();
 
             sizeReservedForWindows =
                 this.WhenAnyValue(x => x.GbsReservedForWindows, ByteSize.FromGigaBytes)
@@ -61,6 +64,14 @@ namespace Deployer.Lumia.Gui.ViewModels
                 ForceDualBootWrapper.Command.IsExecuting,
                 ForceSingleBootWrapper.Command.IsExecuting,
             });
+
+            SelectedPreparer = DiskPreparers.First(x => x.Preparer == settingsService.DiskPreparer);
+        }
+
+        public DiskLayoutPreparerViewModel SelectedPreparer
+        {
+            get => selectedPreparer;
+            set => this.RaiseAndSetIfChanged(ref selectedPreparer, value);
         }
 
         private async Task ForceDualBoot()
@@ -203,6 +214,6 @@ namespace Deployer.Lumia.Gui.ViewModels
 
         public CommandWrapper<Unit, Unit> ForceSingleBootWrapper { get; }
 
-        public IEnumerable<WindowsDeployerViewModel> WindowsDeployers { get; }
+        public IEnumerable<DiskLayoutPreparerViewModel> DiskPreparers { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Deployer.Gui;
 using Deployer.Lumia.Gui.Properties;
 using Deployer.Tasks;
@@ -9,12 +10,13 @@ namespace Deployer.Lumia.Gui.Specifics
     public class SettingsService : ISettingsService
     {
         private readonly IDeploymentContext context;
-        private readonly IEnumerable<Meta<IHighLevelWindowsDeployer>> windowsDeployers;
+        private readonly IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers;
+        private IDiskLayoutPreparer preparer;
 
-        public SettingsService(IDeploymentContext context, IEnumerable<Meta<IHighLevelWindowsDeployer>> windowsDeployers)
+        public SettingsService(IDeploymentContext context, IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers)
         {
             this.context = context;
-            this.windowsDeployers = windowsDeployers;
+            this.diskPreparers = diskPreparers;
         }
 
         public string WimFolder
@@ -41,7 +43,20 @@ namespace Deployer.Lumia.Gui.Specifics
             set => Settings.Default.CleanDownloadedBeforeDeployment = value;
         }
 
-        public IHighLevelWindowsDeployer WindowsDeployer { get; set; }
+        public IDiskLayoutPreparer DiskPreparer
+        {
+            get
+            {
+                var key = Settings.Default.DiskPreparer;
+                var entry = diskPreparers.FirstOrDefault(x => (string)x.Metadata["Name"] == key) ?? diskPreparers.First();
+                return entry.Value;
+            }
+            set
+            {
+                Settings.Default.DiskPreparer = (string) diskPreparers.FirstOrDefault(meta => meta.Value == value)?.Metadata["Name"];
+                preparer = value;
+            }
+        }
 
         public void Save()
         {

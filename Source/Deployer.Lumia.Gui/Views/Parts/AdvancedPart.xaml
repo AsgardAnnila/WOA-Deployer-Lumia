@@ -11,8 +11,8 @@
              d:DesignHeight="546" d:DesignWidth="781" Padding="8"
              DataContext="{Binding Source={StaticResource Locator}, Path=AdvancedViewModel}" mah:DialogParticipation.Register="{Binding}">
     <UserControl.Resources>
-        <gui1:DeployerSelector x:Key="DeployerSelector">
-            <gui1:DeployerSelector.DefaultTemplate>
+        <gui1:DiskPreparerSelector x:Key="DeployerSelector">
+            <gui1:DiskPreparerSelector.ConservativeTemplate>
                 <DataTemplate>
                     <HeaderedContentControl
                         HorizontalContentAlignment="Stretch">
@@ -28,14 +28,19 @@
                         </DockPanel>
                     </HeaderedContentControl>
                 </DataTemplate>
-            </gui1:DeployerSelector.DefaultTemplate>
-        </gui1:DeployerSelector>
+            </gui1:DiskPreparerSelector.ConservativeTemplate>
+            <gui1:DiskPreparerSelector.DestructiveTemplate>
+                <DataTemplate>
+                   <TextBlock>This preparer doesn't have any configurable options</TextBlock>
+                </DataTemplate>
+            </gui1:DiskPreparerSelector.DestructiveTemplate>
+        </gui1:DiskPreparerSelector>
     </UserControl.Resources>
     <StackPanel>
         <GroupBox Header="Deployment" Padding="20" Margin="0,20,0,0">
             <UniformGrid Rows="1">
-                <ComboBox Margin="10" VerticalAlignment="Top" x:Name="ComboBox" ItemsSource="{Binding WindowsDeployers}" DisplayMemberPath="Name" />
-                <ContentControl Content="{Binding ElementName=ComboBox, Path=SelectedItem}" ContentTemplateSelector="{StaticResource DeployerSelector}" />
+                <ComboBox Margin="10" VerticalAlignment="Top" ItemsSource="{Binding DiskPreparers}" DisplayMemberPath="Name" />
+                <ContentControl Content="{Binding SelectedPreparer, Mode=TwoWay}" ContentTemplateSelector="{StaticResource DeployerSelector}" />
             </UniformGrid>
         </GroupBox>
         <GroupBox Header="Deployment" Padding="20" Margin="0,20,0,0">
