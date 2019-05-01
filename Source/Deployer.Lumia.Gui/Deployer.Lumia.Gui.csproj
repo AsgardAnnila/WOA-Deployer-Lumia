@@ -69,6 +69,7 @@
     <Compile Include="AppProperties.cs" />
     <Compile Include="CompositionRoot.cs" />
     <Compile Include="DiskPreparerSelector.cs" />
+    <Compile Include="GbsToByteSizeConverter.cs" />
     <Compile Include="ViewModels\AdvancedViewModel.cs" />
     <Compile Include="ViewModels\DualBootViewModel.cs" />
     <Compile Include="ViewModels\DeploymentViewModel.cs" />
@@ -99,7 +100,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\Parts\AdvancedPart.xaml">
+    <Page Include="Views\Parts\Advanced\AdvancedPart.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Parts\Advanced\SpaceAllocationPart.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,8 +142,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Views\Parts\AdvancedPart.xaml.cs">
+    <Compile Include="Views\Parts\Advanced\AdvancedPart.xaml.cs">
       <DependentUpon>AdvancedPart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Parts\Advanced\SpaceAllocationPart.xaml.cs">
+      <DependentUpon>SpaceAllocationPart.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Parts\DeploymentPart.xaml.cs">
       <DependentUpon>DeploymentPart.xaml</DependentUpon>

@@ -23,7 +23,6 @@ namespace Deployer.Lumia.Gui.ViewModels
         private readonly IPhone phone;
         private readonly IDeploymentContext context;
 
-        private readonly ObservableAsPropertyHelper<ByteSize> sizeReservedForWindows;
         private DiskLayoutPreparerViewModel selectedPreparer;
 
         public AdvancedViewModel(ISettingsService settingsService, IFileSystemOperations fileSystemOperations,
@@ -44,10 +43,6 @@ namespace Deployer.Lumia.Gui.ViewModels
                 .Where(x => !x.Metadata.Keys.Contains("IsNull"))
                 .Select(x => new DiskLayoutPreparerViewModel((string) x.Metadata["Name"], x.Value))
                 .ToList();
-
-            sizeReservedForWindows =
-                this.WhenAnyValue(x => x.GbsReservedForWindows, ByteSize.FromGigaBytes)
-                    .ToProperty(this, x => x.SizeReservedForWindows);
 
             DeleteDownloadedWrapper = new CommandWrapper<Unit, Unit>(this, ReactiveCommand.CreateFromTask(() => DeleteDownloaded(fileSystemOperations)), uiServices.Dialog);
             ForceDualBootWrapper = new CommandWrapper<Unit, Unit>(this, ReactiveCommand.CreateFromTask(ForceDualBoot), uiServices.Dialog);
@@ -158,19 +153,6 @@ namespace Deployer.Lumia.Gui.ViewModels
         }
         
         public CommandWrapper<Unit, Unit> DeleteDownloadedWrapper { get; }
-
-        public ByteSize SizeReservedForWindows => sizeReservedForWindows.Value;
-
-        public double GbsReservedForWindows
-        {
-            get => settingsService.SizeReservedForWindows;
-            set
-            {
-                settingsService.SizeReservedForWindows = value;
-                settingsService.Save();
-                this.RaisePropertyChanged(nameof(GbsReservedForWindows));
-            }
-        }
 
         public bool UseCompactDeployment
         {
