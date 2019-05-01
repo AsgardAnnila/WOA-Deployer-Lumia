@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using ByteSizeLib;
 using Deployer.Gui;
 using Deployer.Gui.ViewModels;
 using Deployer.Tasks;
+using Grace.DependencyInjection;
 using ReactiveUI;
 
 namespace Deployer.Lumia.Gui.ViewModels
@@ -16,29 +18,29 @@ namespace Deployer.Lumia.Gui.ViewModels
         public StatusViewModel StatusViewModel { get; }
         private readonly ISettingsService settingsService;
         private readonly UIServices uiServices;
-        private readonly IProviderBasedWindowsDeployer deployer;
-        private readonly IDiskLayoutPreparer preparer;
-        private readonly IWindowsOptionsProvider optionsProvider;
         private readonly IDeviceProvider deviceProvider;
-        private readonly IDownloadProgress progress;
+        private readonly IOperationProgress progress;
         private readonly IPhone phone;
+        private readonly IDeploymentContext context;
 
         private readonly ObservableAsPropertyHelper<ByteSize> sizeReservedForWindows;
 
         public AdvancedViewModel(ISettingsService settingsService, IFileSystemOperations fileSystemOperations,
-            UIServices uiServices, IProviderBasedWindowsDeployer deployer, 
-            IDiskLayoutPreparer preparer,
-            IWindowsOptionsProvider optionsProvider, IDeviceProvider deviceProvider, IDownloadProgress progress, StatusViewModel statusViewModel, IPhone phone)
+            UIServices uiServices,
+            IDeviceProvider deviceProvider, IOperationProgress progress, StatusViewModel statusViewModel, IPhone phone,
+            IDeploymentContext context,
+                IEnumerable<Meta<IHighLevelWindowsDeployer>> windowsDeployers)
         {
             StatusViewModel = statusViewModel;
             this.settingsService = settingsService;
             this.uiServices = uiServices;
-            this.deployer = deployer;
-            this.preparer = preparer;
-            this.optionsProvider = optionsProvider;
             this.deviceProvider = deviceProvider;
             this.progress = progress;
             this.phone = phone;
+            this.context = context;
+            this.WindowsDeployers = windowsDeployers
+                .Where(x => !x.Metadata.Keys.Contains("IsNull"))
+                .Select(x => new WindowsDeployerViewModel((string) x.Metadata["Name"], x.Value));
 
             sizeReservedForWindows =
                 this.WhenAnyValue(x => x.GbsReservedForWindows, ByteSize.FromGigaBytes)
@@ -89,15 +91,14 @@ namespace Deployer.Lumia.Gui.ViewModels
                 return;
             }
 
-            optionsProvider.Options = new WindowsDeploymentOptions()
+            context.DeploymentOptions = new SlimWindowsDeploymentOptions()
             {
                 ImageIndex = 1,
                 ImagePath = imagePath,
-                SizeReservedForWindows = ByteSize.FromGigaBytes(settingsService.SizeReservedForWindows),
                 UseCompact = settingsService.UseCompactDeployment,
             };
 
-            await deployer.Capture(imagePath, progress);
+            //await deployer.Capture(imagePath, progress);
 
             await uiServices.Dialog.ShowAlert(this, Resources.Done, Resources.ImageCaptured);
         }
@@ -132,16 +133,15 @@ namespace Deployer.Lumia.Gui.ViewModels
                 return;
             }
 
-            optionsProvider.Options = new WindowsDeploymentOptions
+            context.DeploymentOptions = new SlimWindowsDeploymentOptions
             {
                 ImageIndex = 1,
                 ImagePath = fileName,
-                SizeReservedForWindows = ByteSize.FromGigaBytes(settingsService.SizeReservedForWindows),
                 UseCompact = settingsService.UseCompactDeployment,
             };
 
-            await preparer.Prepare(await deviceProvider.Device.GetDeviceDisk());
-            await deployer.Deploy(progress);
+            //await preparer.Prepare(await deviceProvider.Device.GetDeviceDisk());
+            //await deployer.Deploy(progress);
 
             await uiServices.Dialog.ShowAlert(this, Resources.Done, Resources.ImageRestored);
         }
@@ -203,5 +203,6 @@ namespace Deployer.Lumia.Gui.ViewModels
 
         public CommandWrapper<Unit, Unit> ForceSingleBootWrapper { get; }
 
+        public IEnumerable<WindowsDeployerViewModel> WindowsDeployers { get; }
     }
 }

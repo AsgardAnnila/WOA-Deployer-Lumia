@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Deployer.Gui;
 using Deployer.Gui.ViewModels;
+using Deployer.Tasks;
 using ReactiveUI;
 using Serilog;
 
@@ -12,7 +13,7 @@ namespace Deployer.Lumia.Gui.ViewModels
 {
     public class DeploymentViewModel : ReactiveObject, IBusy
     {
-        private readonly IWindowsOptionsProvider optionsProvider;
+        private readonly IDeploymentContext context;
         private readonly IWoaDeployer deployer;
         private readonly UIServices uiServices;
         private readonly AdvancedViewModel advancedViewModel;
@@ -22,11 +23,11 @@ namespace Deployer.Lumia.Gui.ViewModels
         private readonly ObservableAsPropertyHelper<bool> isBusyHelper;
 
         public DeploymentViewModel(
-            IWindowsOptionsProvider optionsProvider,
+            IDeploymentContext context,
             IWoaDeployer deployer, UIServices uiServices, AdvancedViewModel advancedViewModel,
             WimPickViewModel wimPickViewModel, IFileSystemOperations fileSystemOperations, ISettingsService settingsService)
         {
-            this.optionsProvider = optionsProvider;
+            this.context = context;
             this.deployer = deployer;
             this.uiServices = uiServices;
             this.advancedViewModel = advancedViewModel;
@@ -49,15 +50,14 @@ namespace Deployer.Lumia.Gui.ViewModels
         {
             Log.Information("# Starting deployment...");
 
-            var windowsDeploymentOptions = new WindowsDeploymentOptions
+            var windowsDeploymentOptions = new SlimWindowsDeploymentOptions
             {
                 ImagePath = wimPickViewModel.WimMetadata.Path,
                 ImageIndex = wimPickViewModel.WimMetadata.SelectedDiskImage.Index,
-                SizeReservedForWindows = advancedViewModel.SizeReservedForWindows,
                 UseCompact = advancedViewModel.UseCompactDeployment,
             };
 
-            optionsProvider.Options = windowsDeploymentOptions;
+            context.DeploymentOptions = windowsDeploymentOptions;
 
             await CleanDownloadedIfNeeded();
             await deployer.Deploy();

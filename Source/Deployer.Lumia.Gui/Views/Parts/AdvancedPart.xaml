@@ -6,25 +6,41 @@
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:gui="clr-namespace:Deployer.Gui;assembly=Deployer.Gui"
+             xmlns:gui1="clr-namespace:Deployer.Lumia.Gui"
              mc:Ignorable="d"
              d:DesignHeight="546" d:DesignWidth="781" Padding="8"
              DataContext="{Binding Source={StaticResource Locator}, Path=AdvancedViewModel}" mah:DialogParticipation.Register="{Binding}">
+    <UserControl.Resources>
+        <gui1:DeployerSelector x:Key="DeployerSelector">
+            <gui1:DeployerSelector.DefaultTemplate>
+                <DataTemplate>
+                    <HeaderedContentControl
+                        HorizontalContentAlignment="Stretch">
+                        <HeaderedContentControl.Header>
+                            <TextBlock TextWrapping="Wrap">Size to reserve for Windows (taken from the Data partition as needed)</TextBlock>
+                        </HeaderedContentControl.Header>
+                        <DockPanel Margin="10">
+                            <TextBlock Padding="10" MinWidth="80" Text="{Binding SizeReservedForWindows}"
+                                       DockPanel.Dock="Right" />
+                            <Slider Minimum="10" IsSnapToTickEnabled="True" Maximum="24" SmallChange="0.5" LargeChange="1" TickFrequency="0.25"
+                                    Value="{Binding GbsReservedForWindows, Mode=TwoWay}"
+                                    Height="30" />
+                        </DockPanel>
+                    </HeaderedContentControl>
+                </DataTemplate>
+            </gui1:DeployerSelector.DefaultTemplate>
+        </gui1:DeployerSelector>
+    </UserControl.Resources>
     <StackPanel>
         <GroupBox Header="Deployment" Padding="20" Margin="0,20,0,0">
             <UniformGrid Rows="1">
-                <HeaderedContentControl
-                    HorizontalContentAlignment="Stretch">
-                    <HeaderedContentControl.Header>
-                        <TextBlock TextWrapping="Wrap">Size to reserve for Windows (taken from the Data partition as needed)</TextBlock>
-                    </HeaderedContentControl.Header>
-                    <DockPanel Margin="10">
-                        <TextBlock Padding="10" MinWidth="80" Text="{Binding SizeReservedForWindows}"
-                                   DockPanel.Dock="Right" />
-                        <Slider Minimum="10" IsSnapToTickEnabled="True" Maximum="24" SmallChange="0.5" LargeChange="1" TickFrequency="0.25"
-                                Value="{Binding GbsReservedForWindows, Mode=TwoWay}"
-                                Height="30" />
-                    </DockPanel>
-                </HeaderedContentControl>
+                <ComboBox Margin="10" VerticalAlignment="Top" x:Name="ComboBox" ItemsSource="{Binding WindowsDeployers}" DisplayMemberPath="Name" />
+                <ContentControl Content="{Binding ElementName=ComboBox, Path=SelectedItem}" ContentTemplateSelector="{StaticResource DeployerSelector}" />
+            </UniformGrid>
+        </GroupBox>
+        <GroupBox Header="Deployment" Padding="20" Margin="0,20,0,0">
+            <UniformGrid Rows="1">
+                
                 <StackPanel Margin="20 0 0 0">
                     <CheckBox IsChecked="{Binding UseCompactDeployment, Mode=TwoWay}" 
                               Margin="10"

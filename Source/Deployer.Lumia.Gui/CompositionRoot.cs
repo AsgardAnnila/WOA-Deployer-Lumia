@@ -29,13 +29,11 @@ namespace Deployer.Lumia.Gui
 
             Log.Verbose($"Started {AppProperties.AppTitle}");
 
-            var optionsProvider = new WindowsDeploymentOptionsProvider();
-
             container.Configure(x =>
             {
-                x.Configure(optionsProvider);
-                x.ExportFactory(() => new DownloadProgress())
-                    .As<IDownloadProgress>()
+                x.Configure();
+                x.ExportFactory(() => new OperationProgress())
+                    .As<IOperationProgress>()
                     .Lifestyle.Singleton();
                 x.ExportFactory(() => logEvents).As<IObservable<LogEvent>>();
                 x.Export<WimPickViewModel>().ByInterfaces().As<WimPickViewModel>().Lifestyle.Singleton();
