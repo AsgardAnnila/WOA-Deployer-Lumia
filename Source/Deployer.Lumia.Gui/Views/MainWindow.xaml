@@ -19,15 +19,15 @@
             <Setter Property="TextElement.Foreground">
                 <Setter.Value>
 
-                        <MultiBinding Converter="{x:Static converters:BackgroundToForegroundConverter.Instance}">
-                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                            <Binding Mode="OneWay"
+                    <MultiBinding Converter="{x:Static converters:BackgroundToForegroundConverter.Instance}">
+                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                        <Binding Mode="OneWay"
                                      Path="Background"
                                      RelativeSource="{RelativeSource TemplatedParent}" />
-                            <Binding Mode="OneWay"
+                        <Binding Mode="OneWay"
                                      Path="(mah:GroupBoxHelper.HeaderForeground)"
                                      RelativeSource="{RelativeSource TemplatedParent}" />
-                        </MultiBinding>
+                    </MultiBinding>
 
                 </Setter.Value>
             </Setter>
@@ -71,9 +71,14 @@
                         <TextBlock Text="{Binding}" ToolTip="Windows deployment tasks" />
                     </DataTemplate>
                 </TabItem.HeaderTemplate>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <parts:DeploymentPart />
-                </ScrollViewer>
+                <Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <parts:DeploymentPart />
+                    </ScrollViewer>
+                    <Grid Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <parts:ProgressPart VerticalAlignment="Center" />
+                    </Grid>
+                </Grid>
             </TabItem>
             <TabItem Header="Dual Boot">
                 <TabItem.HeaderTemplate>
@@ -94,7 +99,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <parts:AdvancedPart />
                 </ScrollViewer>
-            </TabItem>            
+            </TabItem>
         </TabControl>
 
         <Expander Grid.Row="2" Header="Log" IsExpanded="False" MaxHeight="400">

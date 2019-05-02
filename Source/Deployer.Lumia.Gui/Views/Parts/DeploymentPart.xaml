@@ -41,8 +41,6 @@
 
             </UniformGrid>
         </Grid>
-        <Grid Visibility="{Binding FullInstallWrapper.IsExecuting, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <parts:ProgressPart VerticalAlignment="Center" />
-        </Grid>
+       
     </Grid>
 </UserControl>
