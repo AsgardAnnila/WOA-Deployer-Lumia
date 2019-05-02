@@ -1,7 +1,5 @@
-﻿using System;
-using Deployer.FileSystem;
+﻿using Deployer.FileSystem;
 using Deployer.Services;
-using Deployer.Utils;
 
 namespace Deployer.Lumia
 {
@@ -9,6 +7,7 @@ namespace Deployer.Lumia
     {
         private readonly IBcdInvoker invoker;
         private readonly Volume mainOsVolume;
+
 
         public BcdConfigurator(IBcdInvoker invoker, Volume mainOsVolume)
         {
@@ -18,34 +17,26 @@ namespace Deployer.Lumia
 
         public void SetupBcd()
         {
-            var bootShimEntry = CreateBootShim();
-            var dummyEntry = Guid.Parse("7619dcc9-fafe-11d9-b411-000476eba25f");;
-            SetupBootShim(bootShimEntry);
-            SetupDummyLoader(dummyEntry);
+            SetupBootShim();
             SetupBootMgr();
-            SetDisplayOptions(bootShimEntry, dummyEntry);
+            SetDisplayOptions();
         }
 
-        private void SetDisplayOptions(Guid entry, Guid dummy)
+        private void SetDisplayOptions()
         {
-            invoker.Invoke($@"/displayorder {{{entry}}}");
-            invoker.Invoke($@"/displayorder {{{dummy}}} /addlast");
-            invoker.Invoke($@"/default {{{entry}}}");
+            invoker.Invoke($@"/displayorder {{{BcdGuids.BootShim}}}");
+            invoker.Invoke($@"/default {{{BcdGuids.BootShim}}}");
             invoker.Invoke($@"/timeout 30");
         }
 
-        private void SetupBootShim(Guid guid)
+        private void SetupBootShim()
         {
-            invoker.Invoke($@"/set {{{guid}}} path \EFI\boot\BootShim.efi");
-            invoker.Invoke($@"/set {{{guid}}} device partition={mainOsVolume.Root}\EFIESP");
-            invoker.Invoke($@"/set {{{guid}}} testsigning on");
-            invoker.Invoke($@"/set {{{guid}}} nointegritychecks on");
-        }
-        
-        private void SetupDummyLoader(Guid guid)
-        {
-            invoker.Invoke($@"/set {{{guid}}} path dummy");
-            invoker.Invoke($@"/set {{{guid}}} description ""Dummy, please ignore""");
+            EnsureBootShim();
+
+            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} path \EFI\boot\BootShim.efi");
+            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} device partition={mainOsVolume.Root}\EFIESP");
+            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} testsigning on");
+            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} nointegritychecks on");
         }
         
         private void SetupBootMgr()
@@ -57,10 +48,12 @@ namespace Deployer.Lumia
             invoker.Invoke($@"/deletevalue {{bootmgr}} processcustomactionsfirst");
         }
         
-        private Guid CreateBootShim()
+        private void EnsureBootShim()
         {
-            var invokeText = invoker.Invoke($@"/create {{7619dcca-fafe-11d9-b411-000476eba25f}} /d ""Windows 10"" /application BOOTAPP");
-            return FormattingUtils.GetGuid(invokeText);
+            if (invoker.Invoke("enum {{{BootShimEntryGuid}}}").Contains(BcdGuids.BootShim.ToString()))
+            {
+                invoker.Invoke($@"/create {{{BcdGuids.BootShim}}} /d ""Windows 10"" /application BOOTAPP");            
+            }            
         }
     }
 }

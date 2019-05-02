@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,8 +13,6 @@ namespace Deployer.Lumia
     public class Phone : Device, IPhone
     {
         private const string WindowsSystem32BootWinloadEfi = @"windows\system32\boot\winload.efi";
-        private static readonly Guid WinPhoneBcdGuid = Guid.Parse("7619dcc9-fafe-11d9-b411-000476eba25f");
-        private static readonly Guid WoaBcdGuid = Guid.Parse("7619dcca-fafe-11d9-b411-000476eba25f");
 
         private static readonly ByteSize MinimumPhoneDiskSize = ByteSize.FromGigaBytes(28);
         private static readonly ByteSize MaximumPhoneDiskSize = ByteSize.FromGigaBytes(34);
@@ -175,9 +172,9 @@ namespace Deployer.Lumia
             var result = invoker.Invoke();
 
             var containsWinLoad = result.Contains(WindowsSystem32BootWinloadEfi, StringComparison.CurrentCultureIgnoreCase);
-            var containsWinPhoneBcdGuid = result.Contains(WinPhoneBcdGuid.ToString(), StringComparison.InvariantCultureIgnoreCase);
+            var containsWinPhoneBcdGuid = result.Contains(BcdGuids.WinMobile.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
-            return containsWinLoad && containsWinPhoneBcdGuid;
+            return containsWinLoad ||containsWinPhoneBcdGuid;
         }
 
         private async Task EnableDualBoot()
@@ -188,9 +185,9 @@ namespace Deployer.Lumia
             await systemPartition.SetGptType(PartitionType.Basic);
 
             var invoker = await GetBcdInvoker();
-            invoker.Invoke($@"/set {{{WinPhoneBcdGuid}}} description ""Windows 10 Phone""");
-            invoker.Invoke($@"/set {{{WinPhoneBcdGuid}}} path ""\windows\system32\boot\winload.efi""");
-            invoker.Invoke($@"/default {{{WinPhoneBcdGuid}}}");
+            invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} description ""Windows 10 Phone""");
+            invoker.Invoke($@"/displayorder {{{BcdGuids.WinMobile}}} /addfirst");
+            invoker.Invoke($@"/default {{{BcdGuids.WinMobile}}}");
 
             Log.Verbose("Dual Boot enabled");
         }
@@ -203,9 +200,8 @@ namespace Deployer.Lumia
             await systemPartition.SetGptType(PartitionType.Esp);
 
             var invoker = await GetBcdInvoker();
-            invoker.Invoke($@"/set {{{WinPhoneBcdGuid}}} description ""Dummy, please ignore""");
-            invoker.Invoke($@"/set {{{WinPhoneBcdGuid}}} path ""dummy""");
-            invoker.Invoke($@"/default {{{WoaBcdGuid}}}");
+            invoker.Invoke($@"/displayorder {{{BcdGuids.WinMobile}}} /remove");
+
             Log.Verbose("Dual Boot disabled");
         }
 
