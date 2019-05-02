@@ -2,12 +2,14 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ByteSizeLib;
 using Deployer.Exceptions;
 using Deployer.FileSystem;
 using Deployer.Services;
 using Serilog;
+using Zafiro.Core;
 
 namespace Deployer.Lumia
 {
@@ -117,22 +119,43 @@ namespace Deployer.Lumia
         private  async Task<Disk> GetDeviceDiskCore()
         {
             var disks = await DiskApi.GetDisks();
-            foreach (var disk in disks.Where(x => x.Number != 0))
-            {
-                var hasCorrectSize = HasCorrectSize(disk);
 
-                if (hasCorrectSize)
-                {
-                    var mainOs = await disk.GetPartition(PartitionName.MainOs);
-                    if (mainOs != null)
-                    {
-                        return disk;
-                    }
-                }
+            var disk = await disks
+                .ToObservable()
+                .SelectMany(async x => new { IsDevice = await IsDeviceDisk(x), Disk = x})
+                .FirstAsync(x => x.IsDevice).Select(x => x.Disk);
+
+            if (disk != null)
+            {
+                return disk;
             }
 
             throw new PhoneDiskNotFoundException(
                 "Cannot get the Phone Disk. Please, verify that the Phone is in Mass Storage Mode.");
+        }
+
+        private static async Task<bool> IsDeviceDisk(Disk disk)
+        {           
+            var hasCorrectSize = HasCorrectSize(disk);
+
+            if (!hasCorrectSize)
+            {
+                return false;
+            }
+
+            var diskNames = new[] {"VEN_QUALCOMM&PROD_MMC_STORAGE", "VEN_MSFT&PROD_PHONE_MMC_STOR"};
+            var hasCorrectDiskName = diskNames.Any(name => disk.UniqueId.Contains(name));
+
+            if (hasCorrectDiskName)
+            {
+                return true;
+            }
+
+            var partitions = await disk.GetPartitions();
+            var names = partitions.Select(x => x.Name);
+            var lookup = new[] {"EFIESP", "TZAPPS", "DPP"};
+
+            return lookup.IsSubsetOf(names);
         }
 
         public override Task<Volume> GetWindowsVolume()

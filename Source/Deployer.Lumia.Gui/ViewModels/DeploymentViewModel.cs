@@ -50,7 +50,7 @@ namespace Deployer.Lumia.Gui.ViewModels
         {
             Log.Information("# Starting deployment...");
 
-            var windowsDeploymentOptions = new SlimWindowsDeploymentOptions
+            var windowsDeploymentOptions = new WindowsDeploymentOptions
             {
                 ImagePath = wimPickViewModel.WimMetadata.Path,
                 ImageIndex = wimPickViewModel.WimMetadata.SelectedDiskImage.Index,
@@ -58,6 +58,7 @@ namespace Deployer.Lumia.Gui.ViewModels
             };
 
             context.DeploymentOptions = windowsDeploymentOptions;
+            context.DiskLayoutPreparer = settingsService.DiskPreparer;
 
             await CleanDownloadedIfNeeded();
             await deployer.Deploy();

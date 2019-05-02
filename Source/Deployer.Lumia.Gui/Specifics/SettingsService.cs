@@ -9,13 +9,10 @@ namespace Deployer.Lumia.Gui.Specifics
 {
     public class SettingsService : ISettingsService
     {
-        private readonly IDeploymentContext context;
         private readonly IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers;
-        private IDiskLayoutPreparer preparer;
 
-        public SettingsService(IDeploymentContext context, IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers)
+        public SettingsService(IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers)
         {
-            this.context = context;
             this.diskPreparers = diskPreparers;
         }
 
@@ -53,8 +50,7 @@ namespace Deployer.Lumia.Gui.Specifics
             }
             set
             {
-                Settings.Default.DiskPreparer = (string) diskPreparers.FirstOrDefault(meta => meta.Value == value)?.Metadata["Name"];
-                preparer = value;
+                Settings.Default.DiskPreparer = (string) diskPreparers.FirstOrDefault(meta => meta.Value == value)?.Metadata["Name"];                
             }
         }
 

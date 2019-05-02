@@ -13,30 +13,23 @@ using ReactiveUI;
 
 namespace Deployer.Lumia.Gui.ViewModels
 {
-    public class AdvancedViewModel : ReactiveObject, IBusy
+    public class AdvancedViewModel : ReactiveObject, IBusy, IDisposable
     {
         public StatusViewModel StatusViewModel { get; }
         private readonly ISettingsService settingsService;
         private readonly UIServices uiServices;
-        private readonly IDeviceProvider deviceProvider;
-        private readonly IOperationProgress progress;
-        private readonly IPhone phone;
         private readonly IDeploymentContext context;
 
         private DiskLayoutPreparerViewModel selectedPreparer;
+        private readonly IDisposable settingsUpdater;
 
         public AdvancedViewModel(ISettingsService settingsService, IFileSystemOperations fileSystemOperations,
-            UIServices uiServices,
-            IDeviceProvider deviceProvider, IOperationProgress progress, StatusViewModel statusViewModel, IPhone phone,
-            IDeploymentContext context,
+            UIServices uiServices, StatusViewModel statusViewModel, IDeploymentContext context,
                 IEnumerable<Meta<IDiskLayoutPreparer>> diskPreparers)
         {
             StatusViewModel = statusViewModel;
             this.settingsService = settingsService;
             this.uiServices = uiServices;
-            this.deviceProvider = deviceProvider;
-            this.progress = progress;
-            this.phone = phone;
             this.context = context;
 
             DiskPreparers = diskPreparers
@@ -61,6 +54,11 @@ namespace Deployer.Lumia.Gui.ViewModels
             });
 
             SelectedPreparer = DiskPreparers.First(x => x.Preparer == settingsService.DiskPreparer);
+            settingsUpdater = this.WhenAnyValue(x => x.SelectedPreparer).Subscribe(x =>
+            {
+                settingsService.DiskPreparer = x.Preparer;
+                settingsService.Save();
+            });
         }
 
         public DiskLayoutPreparerViewModel SelectedPreparer
@@ -71,14 +69,14 @@ namespace Deployer.Lumia.Gui.ViewModels
 
         private async Task ForceDualBoot()
         {
-            await phone.ToogleDualBoot(true, true);
+            await ((IPhone)context.Device).ToogleDualBoot(true, true);
 
             await uiServices.Dialog.ShowAlert(this, Resources.Done, Resources.DualBootEnabled);
         }
 
         private async Task ForceDisableDualBoot()
         {
-            await phone.ToogleDualBoot(false, true);
+            await ((IPhone)context.Device).ToogleDualBoot(false, true);
 
             await uiServices.Dialog.ShowAlert(this, Resources.Done, Resources.DualBootDisabled);
         }
@@ -97,7 +95,7 @@ namespace Deployer.Lumia.Gui.ViewModels
                 return;
             }
 
-            context.DeploymentOptions = new SlimWindowsDeploymentOptions()
+            context.DeploymentOptions = new WindowsDeploymentOptions()
             {
                 ImageIndex = 1,
                 ImagePath = imagePath,
@@ -139,7 +137,7 @@ namespace Deployer.Lumia.Gui.ViewModels
                 return;
             }
 
-            context.DeploymentOptions = new SlimWindowsDeploymentOptions
+            context.DeploymentOptions = new WindowsDeploymentOptions
             {
                 ImageIndex = 1,
                 ImagePath = fileName,
@@ -197,5 +195,11 @@ namespace Deployer.Lumia.Gui.ViewModels
         public CommandWrapper<Unit, Unit> ForceSingleBootWrapper { get; }
 
         public IEnumerable<DiskLayoutPreparerViewModel> DiskPreparers { get; set; }
+
+        public void Dispose()
+        {
+            settingsUpdater?.Dispose();
+            StatusViewModel?.Dispose();
+        }
     }
 }

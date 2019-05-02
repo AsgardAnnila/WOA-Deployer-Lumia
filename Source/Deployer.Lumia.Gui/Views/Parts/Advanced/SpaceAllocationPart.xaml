@@ -6,19 +6,20 @@
              xmlns:gui="clr-namespace:Deployer.Lumia.Gui"
              xmlns:viewModels="clr-namespace:Deployer.Lumia.Gui.ViewModels"
              xmlns:lumia="clr-namespace:Deployer.Lumia;assembly=Deployer.Lumia"
+             xmlns:diskPreparers="clr-namespace:Deployer.Lumia.DiskPreparers;assembly=Deployer.Lumia"
              mc:Ignorable="d" 
              d:DesignHeight="166.5" d:DesignWidth="485" d:DataContext="{d:DesignInstance viewModels:AdvancedViewModel}">
     <UserControl.Resources>
         <gui:GbsToByteSizeConverter x:Key="GbsToByteSizeConverter" />
         <gui:DiskPreparerSelector x:Key="DeployerSelector">
-            <gui:DiskPreparerSelector.ConservativeTemplate>
+            <gui:DiskPreparerSelector.KeepW10MTemplate>
                 <DataTemplate DataType="viewModels:DiskLayoutPreparerViewModel">
                     <HeaderedContentControl DataContext="{Binding Preparer}"
                         HorizontalContentAlignment="Stretch">
                         <HeaderedContentControl.Header>
                             <TextBlock TextWrapping="Wrap">Size to reserve for Windows (taken from the Data partition as needed)</TextBlock>
                         </HeaderedContentControl.Header>
-                        <DockPanel Margin="10" d:DataContext="{d:DesignInstance lumia:ConservativeLumiaDiskLayoutPreparer}">
+                        <DockPanel Margin="10" d:DataContext="{d:DesignInstance diskPreparers:KeepMobileOSDiskLayoutPreparer}">
                             <TextBlock Padding="10" MinWidth="80" Text="{Binding SizeReservedForWindows}"
                                        DockPanel.Dock="Right" />
                             <Slider Minimum="10" IsSnapToTickEnabled="True" Maximum="24" SmallChange="0.5" LargeChange="1" TickFrequency="0.25"
@@ -27,12 +28,12 @@
                         </DockPanel>
                     </HeaderedContentControl>
                 </DataTemplate>
-            </gui:DiskPreparerSelector.ConservativeTemplate>
-            <gui:DiskPreparerSelector.DestructiveTemplate>
+            </gui:DiskPreparerSelector.KeepW10MTemplate>
+            <gui:DiskPreparerSelector.OverwriteW10PTemplate>
                 <DataTemplate>
                     <TextBlock>This preparer doesn't have any configurable options</TextBlock>
                 </DataTemplate>
-            </gui:DiskPreparerSelector.DestructiveTemplate>
+            </gui:DiskPreparerSelector.OverwriteW10PTemplate>
         </gui:DiskPreparerSelector>
     </UserControl.Resources>
     <Grid>

@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Deployer.Gui;
+using Deployer.Tasks;
 using ReactiveUI;
 using Serilog;
 
@@ -11,14 +12,14 @@ namespace Deployer.Lumia.Gui.ViewModels
 {
     public class DualBootViewModel : ReactiveObject, IBusy
     {
-        private readonly IPhone phone;
+        private readonly IDeploymentContext context;
         private bool isCapable;
         private bool isEnabled;
         private bool isUpdated;
 
-        public DualBootViewModel(IPhone phone, IDialog dialogService)
+        public DualBootViewModel(IDeploymentContext context, IDialog dialogService)
         {
-            this.phone = phone;
+            this.context = context;
             var isChangingDualBoot = new Subject<bool>();
 
             UpdateStatusWrapper =
@@ -91,19 +92,21 @@ namespace Deployer.Lumia.Gui.ViewModels
 
         private async Task EnableDualBoot()
         {
-            await phone.ToogleDualBoot(true);
+            await Phone.ToogleDualBoot(true);
             Log.Information("Dual Boot enabled");
         }
 
+        private IPhone Phone => (IPhone) context.Device;
+
         private async Task DisableDualBoot()
         {
-            await phone.ToogleDualBoot(false);
+            await Phone.ToogleDualBoot(false);
             Log.Information("Dual Boot disabled");
         }
 
         private async Task<DualBootStatus> GetStatus()
         {
-            var status = await phone.GetDualBootStatus();
+            var status = await Phone.GetDualBootStatus();
          
             return status;
         }
