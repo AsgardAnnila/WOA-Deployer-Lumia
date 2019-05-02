@@ -18,14 +18,23 @@ namespace Deployer.Lumia
         public void SetupBcd()
         {
             SetupBootShim();
+            SetupDummy();
             SetupBootMgr();
             SetDisplayOptions();
         }
 
+        private void SetupDummy()
+        {
+            invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} path dummy");
+            invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} description ""Dummy, please ignore""");
+        }
+
+
         private void SetDisplayOptions()
         {
-            invoker.Invoke($@"/displayorder {{{BcdGuids.BootShim}}}");
-            invoker.Invoke($@"/default {{{BcdGuids.BootShim}}}");
+            invoker.Invoke($@"/displayorder {{{BcdGuids.Woa}}}");
+            invoker.Invoke($@"/displayorder {{{BcdGuids.WinMobile}}} /addlast");
+            invoker.Invoke($@"/default {{{BcdGuids.Woa}}}");
             invoker.Invoke($@"/timeout 30");
         }
 
@@ -33,10 +42,10 @@ namespace Deployer.Lumia
         {
             EnsureBootShim();
 
-            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} path \EFI\boot\BootShim.efi");
-            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} device partition={mainOsVolume.Root}\EFIESP");
-            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} testsigning on");
-            invoker.Invoke($@"/set {{{BcdGuids.BootShim}}} nointegritychecks on");
+            invoker.Invoke($@"/set {{{BcdGuids.Woa}}} path \EFI\boot\BootShim.efi");
+            invoker.Invoke($@"/set {{{BcdGuids.Woa}}} device partition={mainOsVolume.Root}\EFIESP");
+            invoker.Invoke($@"/set {{{BcdGuids.Woa}}} testsigning on");
+            invoker.Invoke($@"/set {{{BcdGuids.Woa}}} nointegritychecks on");
         }
         
         private void SetupBootMgr()
@@ -50,10 +59,7 @@ namespace Deployer.Lumia
         
         private void EnsureBootShim()
         {
-            if (invoker.Invoke("enum {{{BootShimEntryGuid}}}").Contains(BcdGuids.BootShim.ToString()))
-            {
-                invoker.Invoke($@"/create {{{BcdGuids.BootShim}}} /d ""Windows 10"" /application BOOTAPP");            
-            }            
+            invoker.SafeCreate(BcdGuids.Woa, $@"/d ""Windows 10"" /application BOOTAPP");                       
         }
     }
 }

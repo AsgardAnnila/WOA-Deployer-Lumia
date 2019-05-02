@@ -174,7 +174,8 @@ namespace Deployer.Lumia
             var containsWinLoad = result.Contains(WindowsSystem32BootWinloadEfi, StringComparison.CurrentCultureIgnoreCase);
             var containsWinPhoneBcdGuid = result.Contains(BcdGuids.WinMobile.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
-            return containsWinLoad ||containsWinPhoneBcdGuid;
+            return containsWinLoad && containsWinPhoneBcdGuid;
+
         }
 
         private async Task EnableDualBoot()
@@ -186,7 +187,7 @@ namespace Deployer.Lumia
 
             var invoker = await GetBcdInvoker();
             invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} description ""Windows 10 Phone""");
-            invoker.Invoke($@"/displayorder {{{BcdGuids.WinMobile}}} /addfirst");
+            invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} path ""\windows\system32\boot\winload.efi""");
             invoker.Invoke($@"/default {{{BcdGuids.WinMobile}}}");
 
             Log.Verbose("Dual Boot enabled");
@@ -200,8 +201,9 @@ namespace Deployer.Lumia
             await systemPartition.SetGptType(PartitionType.Esp);
 
             var invoker = await GetBcdInvoker();
-            invoker.Invoke($@"/displayorder {{{BcdGuids.WinMobile}}} /remove");
-
+            invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} description ""Dummy, please ignore""");
+            invoker.Invoke($@"/set {{{BcdGuids.WinMobile}}} path ""dummy""");
+            invoker.Invoke($@"/default {{{BcdGuids.Woa}}}");
             Log.Verbose("Dual Boot disabled");
         }
 
