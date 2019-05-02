@@ -35,16 +35,16 @@ namespace Deployer.Lumia.Tasks
             var mainOsPath = mainOsVolume.Root;
             destinationFolder = Path.Combine(mainOsPath, PartitionName.EfiEsp, "Windows", "System32", "BOOT");
 
-            var shouldIinstall = !IsAlreadyInstalled();
+            var shouldInstall = !IsAlreadyInstalled();
 
-            if (shouldIinstall)
+            if (shouldInstall)
             {
                 await CopyDevMenuFiles(mainOsPath);                
             }
 
             ConfigureBcd(mainOsPath);
 
-            if (shouldIinstall)
+            if (shouldInstall)
             {
                 await prompt.PickOptions(Resources.DeveloperMenuInstalled, new List<Option>()
                 {

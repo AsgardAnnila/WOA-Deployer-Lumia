@@ -119,7 +119,6 @@
   </resheader>
   <data name="WindowsDeployedSuccessfully" xml:space="preserve">
     <value># Done!
-
 Now, follow these directions:
 
 1. **Eject the phone safely** to avoid data corruption issues
@@ -145,13 +144,13 @@ By clicking "OK" you accept the aforementioned risks.</value>
   </data>
   <data name="TermsOfUseTitle" xml:space="preserve">
     <value>Disclaimer Notice and Terms of Use</value>
-  </data>  
+  </data>
   <data name="CannotInstallGpu" xml:space="preserve">
     <value>Unable to install the GPU. Please, ensure that WOA is installed.</value>
   </data>
   <data name="DeploymentFinished" xml:space="preserve">
     <value>Finished</value>
-  </data>     
+  </data>
   <data name="DualBootEnabled" xml:space="preserve">
     <value>Dual Boot Enabled!</value>
   </data>
