@@ -45,12 +45,23 @@ namespace Deployer.Lumia.Gui.Specifics
             get
             {
                 var key = Settings.Default.DiskPreparer;
-                var entry = diskPreparers.FirstOrDefault(x => (string)x.Metadata["Name"] == key) ?? diskPreparers.First();
+                var entry = diskPreparers
+                                .FirstOrDefault(x => (string)x.Metadata["Name"] == key) ?? Default;
                 return entry.Value;
             }
             set
             {
                 Settings.Default.DiskPreparer = (string) diskPreparers.FirstOrDefault(meta => meta.Value == value)?.Metadata["Name"];                
+            }
+        }
+
+        private Meta<IDiskLayoutPreparer> Default
+        {
+            get
+            {
+                return diskPreparers
+                    .OrderByDescending(x => (int) x.Metadata["Order"])
+                    .First();
             }
         }
 

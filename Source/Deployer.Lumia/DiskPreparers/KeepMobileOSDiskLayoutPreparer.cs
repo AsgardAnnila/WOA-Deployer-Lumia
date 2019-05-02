@@ -10,6 +10,7 @@ using Serilog;
 namespace Deployer.Lumia.DiskPreparers
 {
     [Metadata("Name", "Keep Windows 10 Phone")]
+    [Metadata("Order", 0)]
     public class KeepMobileOSDiskLayoutPreparer : LumiaDiskLayoutPreparer
     {
         public KeepMobileOSDiskLayoutPreparer(IDeploymentContext context, IEnumerable<ISpaceAllocator<IPhone>> spaceAllocators, IPartitionCleaner cleaner) : base(context, cleaner)

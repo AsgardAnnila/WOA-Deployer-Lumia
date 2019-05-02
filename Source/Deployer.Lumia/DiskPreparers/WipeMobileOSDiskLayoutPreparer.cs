@@ -7,6 +7,7 @@ using Grace.DependencyInjection.Attributes;
 namespace Deployer.Lumia.DiskPreparers
 {
     [Metadata("Name", "Overwrite (Wipe) Windows 10 Mobile")]
+    [Metadata("Order", 1)]
     public class WipeMobileOSDiskLayoutPreparer : LumiaDiskLayoutPreparer
     {
         public WipeMobileOSDiskLayoutPreparer(IDeploymentContext context, IPartitionCleaner cleaner) : base(context, cleaner)

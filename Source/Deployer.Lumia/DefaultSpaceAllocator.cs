@@ -11,7 +11,7 @@ namespace Deployer.Lumia
         {
             Log.Verbose("Trying to shrink Data partition...");
 
-            var dataVolume = await phone.GetDataVolume();
+            var dataVolume = await phone.GetVolumeByPartitionName(PartitionName.Data);
 
             if (dataVolume == null)
             {

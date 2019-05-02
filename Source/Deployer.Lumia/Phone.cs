@@ -95,14 +95,9 @@ namespace Deployer.Lumia
             }
         }
 
-        public Task<Volume> GetDataVolume()
-        {
-            return GetVolumeByPartitionName(PartitionName.Data);
-        }
-
         public Task<Volume> GetMainOsVolume()
         {
-            return GetVolumeByPartitionName(PartitionName.MainOs);
+            return this.GetVolumeByPartitionName(PartitionName.MainOs);
         }
 
         public override async Task<Disk> GetDeviceDisk()
@@ -123,7 +118,7 @@ namespace Deployer.Lumia
             var disk = await disks
                 .ToObservable()
                 .SelectMany(async x => new { IsDevice = await IsDeviceDisk(x), Disk = x})
-                .FirstAsync(x => x.IsDevice).Select(x => x.Disk);
+                .FirstOrDefaultAsync(x => x.IsDevice).Select(x => x.Disk);
 
             if (disk != null)
             {
@@ -160,12 +155,12 @@ namespace Deployer.Lumia
 
         public override Task<Volume> GetWindowsVolume()
         {
-            return GetVolumeByPartitionName(PartitionName.Windows);
+            return this.GetVolumeByPartitionName(PartitionName.Windows);
         }
 
         public override async Task<Volume> GetSystemVolume()
         {
-            return await GetVolumeByPartitionName(PartitionName.System);
+            return await (await GetDeviceDisk()).GetVolumeByPartitionName(PartitionName.System);
         }
 
         private async Task<bool> IsWindowsPhonePresent()
@@ -173,7 +168,7 @@ namespace Deployer.Lumia
             try
             {
                 await GetWindowsVolume();
-                await GetDataVolume();
+                await (await GetDeviceDisk()).GetVolumeByPartitionName(PartitionName.Data);
             }
             catch (Exception e)
             {
@@ -186,7 +181,7 @@ namespace Deployer.Lumia
 
         private async Task<IBcdInvoker> GetBcdInvoker()
         {
-            var volume = await GetMainOsVolume();
+            var volume = await this.GetVolumeByPartitionName(PartitionName.MainOs);
             var bcdFullFilename = Path.Combine(volume.Root, PartitionName.EfiEsp.CombineRelativeBcdPath());
             return bcdInvokerFactory.Create(bcdFullFilename);
         }
