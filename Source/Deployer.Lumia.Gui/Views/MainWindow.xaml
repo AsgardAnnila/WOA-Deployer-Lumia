@@ -12,10 +12,10 @@
                  mah:DialogParticipation.Register="{Binding}"
                  Title="{Binding Title}" Width="760" Height="640"
                  Icon="/Assets/appicon.png"
-                 WindowStartupLocation="CenterScreen">
+                 WindowStartupLocation="CenterScreen" Closing="MainWindow_OnClosing">
     <mah:MetroWindow.Resources>
         <Style x:Key="DonateButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
+            <!--<Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />-->
             <Setter Property="TextElement.Foreground">
                 <Setter.Value>
 
@@ -42,6 +42,16 @@
                     <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Help" />
                 </StackPanel>
             </Button>
+            <Button Command="{Binding DonateCommand}" ToolTip="Please, support this tool. Thanks in advance :)"
+                    Padding="10,5,10,5"
+                    Opacity="1">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Height="16" VerticalAlignment="Center" Source="/Assets/heart.png" RenderOptions.BitmapScalingMode="HighQuality" />
+                        <TextBlock Margin="8 0 0 0" VerticalAlignment="Center" Text="Donate" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
     <Grid>
@@ -53,7 +63,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TabControl Margin="20,0,20,20" Grid.Row="1"
+        <TabControl Margin="20" Grid.Row="1"
                     IsHitTestVisible="{Binding IsBusy, Converter={StaticResource BoolNegationConverter}}">
             <TabItem Header="Deployment">
                 <TabItem.HeaderTemplate>
@@ -84,18 +94,8 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <parts:AdvancedPart />
                 </ScrollViewer>
-            </TabItem>
+            </TabItem>            
         </TabControl>
-
-        <Button Command="{Binding DonateCommand}" ToolTip="Please, support this tool. Thanks in advance :)" Grid.Row="1" Margin="0,0,20,20" Padding="10,5,10,5" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                Style="{StaticResource DonateButtonStyle}">
-            <Button.Content>
-                <StackPanel Orientation="Horizontal">
-                    <Image Height="16" VerticalAlignment="Center" Source="/Assets/heart.png" RenderOptions.BitmapScalingMode="HighQuality" />
-                    <TextBlock Margin="8 0 0 0" VerticalAlignment="Center" Text="Donate" />
-                </StackPanel>
-            </Button.Content>
-        </Button>
 
         <Expander Grid.Row="2" Header="Log" IsExpanded="False" MaxHeight="400">
             <parts:LogPart />

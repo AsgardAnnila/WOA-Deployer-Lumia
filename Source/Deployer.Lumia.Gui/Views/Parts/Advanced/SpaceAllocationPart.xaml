@@ -19,7 +19,7 @@
                         <HeaderedContentControl.Header>
                             <TextBlock TextWrapping="Wrap">Size to reserve for Windows (taken from the Data partition as needed)</TextBlock>
                         </HeaderedContentControl.Header>
-                        <DockPanel Margin="10" d:DataContext="{d:DesignInstance diskPreparers:KeepMobileOSDiskLayoutPreparer}">
+                        <DockPanel Margin="10" MaxWidth="300" d:DataContext="{d:DesignInstance diskPreparers:KeepMobileOSDiskLayoutPreparer}">
                             <TextBlock Padding="10" MinWidth="80" Text="{Binding SizeReservedForWindows}"
                                        DockPanel.Dock="Right" />
                             <Slider Minimum="10" IsSnapToTickEnabled="True" Maximum="24" SmallChange="0.5" LargeChange="1" TickFrequency="0.25"
@@ -36,12 +36,8 @@
             </gui:DiskPreparerSelector.OverwriteW10PTemplate>
         </gui:DiskPreparerSelector>
     </UserControl.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MinWidth="200"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <ComboBox Margin="10" VerticalAlignment="Top" ItemsSource="{Binding DiskPreparers}" SelectedItem="{Binding SelectedPreparer, Mode=TwoWay}" DisplayMemberPath="Name" />
-        <HeaderedContentControl Grid.Column="1" Margin="10" Content="{Binding SelectedPreparer}" ContentTemplateSelector="{StaticResource DeployerSelector}" />
-    </Grid>
+    <DockPanel>
+        <ComboBox HorizontalAlignment="Left" MinWidth="250" DockPanel.Dock="Top" Margin="10" VerticalAlignment="Top" ItemsSource="{Binding DiskPreparers}" SelectedItem="{Binding SelectedPreparer, Mode=TwoWay}" DisplayMemberPath="Name" />
+        <HeaderedContentControl Margin="10" Content="{Binding SelectedPreparer}" ContentTemplateSelector="{StaticResource DeployerSelector}" />
+    </DockPanel>
 </UserControl>

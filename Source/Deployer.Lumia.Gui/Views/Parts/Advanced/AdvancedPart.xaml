@@ -12,9 +12,9 @@
              DataContext="{Binding Source={StaticResource Locator}, Path=AdvancedViewModel}" mah:DialogParticipation.Register="{Binding}">
     
     <StackPanel>       
-        <GroupBox Header="Deployment" Padding="20" Margin="0,20,0,0">
-            <UniformGrid Rows="1">                
-                <StackPanel Margin="20 0 0 0">
+        <GroupBox Header="Deployment" Padding="10" Margin="0,20,0,0">
+            <DockPanel>                
+                <StackPanel DockPanel.Dock="Left" >
                     <CheckBox IsChecked="{Binding UseCompactDeployment, Mode=TwoWay}" 
                               Margin="10"
                               ToolTip="Checking this will reduce the size of the Windows installation. However, the deployment process will take longer. It will help you save space on your device">
@@ -30,11 +30,18 @@
                         </CheckBox.Content>
                     </CheckBox>
                 </StackPanel>
-            </UniformGrid>
+                <GroupBox Header="Space Allocation" Padding="10"  VerticalAlignment="Stretch">
+                    <GroupBox.Style>
+                        <Style TargetType="{x:Type GroupBox}" BasedOn="{StaticResource {x:Type GroupBox}}">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="Transparent"></Setter>
+                        </Style>
+                    </GroupBox.Style>
+                    <advanced:SpaceAllocationPart />
+                </GroupBox>
+            </DockPanel>
         </GroupBox>
-        <GroupBox Header="Space Allocation" Padding="20" Margin="0,20,0,0">
-           <advanced:SpaceAllocationPart />
-        </GroupBox>
+        
         <Grid>
             <GroupBox Header="WOA Partition Maintenance" Padding="20" Margin="0,20,0,0">
                 <UniformGrid Rows="1">
