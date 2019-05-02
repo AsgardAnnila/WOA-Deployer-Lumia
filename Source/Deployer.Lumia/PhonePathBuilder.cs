@@ -19,14 +19,9 @@ namespace Deployer.Lumia
         {
             IDictionary<string, Func<Task<string>>> mappings = new Dictionary<string, Func<Task<string>>>()
             {
-                { @"\[EFIESP\]", async () =>
-                    {
-                        var volume = await phone.GetMainOsVolume();
-                        return Path.Combine(volume.Root, "EFIESP");
-                    }
-                },
-                { @"\[Windows\]", async () => (await phone.GetWindowsVolume()).Root },
-                { @"\[MainOS\]", async () => (await phone.GetMainOsVolume()).Root },
+                { @"\[EFIESP\]", async () => (await phone.GetVolumeByPartitionName(PartitionName.EfiEsp)).Root},
+                { @"\[DPP\]", async () => (await phone.GetVolumeByPartitionName(PartitionName.Dpp)).Root },                
+                { @"\[Windows\]", async () => (await phone.GetWindowsVolume()).Root },                
                 { @"\[System\]", async () => (await phone.GetSystemVolume()).Root },
             };
 

@@ -9,6 +9,5 @@ namespace Deployer.Lumia
         Task<DualBootStatus> GetDualBootStatus();
         Task ToogleDualBoot(bool isEnabled, bool force = false);
         Task<Volume> GetDataVolume();
-        Task<Volume> GetMainOsVolume();
     }
 }

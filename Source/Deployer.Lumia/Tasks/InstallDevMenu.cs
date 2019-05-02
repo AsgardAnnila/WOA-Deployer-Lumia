@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Deployer.Execution;
 using Deployer.FileSystem;
+using Deployer.Services;
 using Deployer.Utils;
 
 namespace Deployer.Lumia.Tasks
@@ -19,7 +20,10 @@ namespace Deployer.Lumia.Tasks
         private readonly IFileSystemOperations fileSystemOperations;
         private readonly IPrompt prompt;
         private string destinationFolder;
-        
+        private string bcdPath;
+        private string efiEspPath;
+        private IBcdInvoker bcdInvoker;
+
         public InstallDevMenu(string rootFilesPath, IPhone phone, IBcdInvokerFactory bcdInvokerFactory, IFileSystemOperations fileSystemOperations, IPrompt prompt)
         {
             this.rootFilesPath = rootFilesPath;
@@ -31,18 +35,20 @@ namespace Deployer.Lumia.Tasks
 
         public async Task Execute()
         {
-            var mainOsVolume = await phone.GetMainOsVolume();
-            var mainOsPath = mainOsVolume.Root;
-            destinationFolder = Path.Combine(mainOsPath, PartitionName.EfiEsp, "Windows", "System32", "BOOT");
+            var efiEspVolume = await phone.GetVolumeByPartitionName(PartitionName.EfiEsp);
+            efiEspPath = efiEspVolume.Root;
+            destinationFolder = Path.Combine(efiEspVolume.Root, "Windows", "System32", "BOOT");
+            bcdPath = efiEspVolume.Root.CombineRelativeBcdPath();
+            bcdInvoker = bcdInvokerFactory.Create(bcdPath);
 
             var shouldIinstall = !IsAlreadyInstalled();
 
             if (shouldIinstall)
             {
-                await CopyDevMenuFiles(mainOsPath);                
+                await CopyDevMenuFiles();                
             }
 
-            ConfigureBcd(mainOsPath);
+            ConfigureBcd();
 
             if (shouldIinstall)
             {
@@ -65,16 +71,13 @@ namespace Deployer.Lumia.Tasks
             return string.Equals(Checksum(existingFile), Checksum(newFile));
         }
 
-        private async Task CopyDevMenuFiles(string mainOsPath)
+        private async Task CopyDevMenuFiles()
         {            
             await fileSystemOperations.CopyDirectory(Path.Combine(rootFilesPath), destinationFolder);
         }
 
-        private void ConfigureBcd(string mainOsPath)
+        private void ConfigureBcd()
         {
-            var bcdPath = Path.Combine(mainOsPath, PartitionName.EfiEsp.CombineRelativeBcdPath());
-            var efiEspPath = Path.Combine(mainOsPath, PartitionName.EfiEsp);
-            var bcdInvoker = bcdInvokerFactory.Create(bcdPath);
             var guid = FormattingUtils.GetGuid(bcdInvoker.Invoke(@"/create /d ""Developer Menu"" /application BOOTAPP"));
             bcdInvoker.Invoke($@"/set {{{guid}}} path \Windows\System32\BOOT\developermenu.efi");
             bcdInvoker.Invoke($@"/set {{{guid}}} device partition={efiEspPath}");
