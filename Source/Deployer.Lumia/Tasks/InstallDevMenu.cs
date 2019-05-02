@@ -78,12 +78,12 @@ namespace Deployer.Lumia.Tasks
 
         private void ConfigureBcd()
         {
-            var guid = FormattingUtils.GetGuid(bcdInvoker.Invoke(@"/create /d ""Developer Menu"" /application BOOTAPP"));
-            bcdInvoker.Invoke($@"/set {{{guid}}} path \Windows\System32\BOOT\developermenu.efi");
-            bcdInvoker.Invoke($@"/set {{{guid}}} device partition={efiEspPath}");
-            bcdInvoker.Invoke($@"/set {{{guid}}} testsigning on");
-            bcdInvoker.Invoke($@"/set {{{guid}}} nointegritychecks on");
-            bcdInvoker.Invoke($@"/displayorder {{{guid}}} /addlast");
+            bcdInvoker.SafeCreate(BcdGuids.DevMenu,@"/d ""Developer Menu"" /application BOOTAPP");
+            bcdInvoker.Invoke($@"/set {{{BcdGuids.DevMenu}}} path \Windows\System32\BOOT\developermenu.efi");
+            bcdInvoker.Invoke($@"/set {{{BcdGuids.DevMenu}}} device partition={efiEspPath}");
+            bcdInvoker.Invoke($@"/set {{{BcdGuids.DevMenu}}} testsigning on");
+            bcdInvoker.Invoke($@"/set {{{BcdGuids.DevMenu}}} nointegritychecks on");
+            bcdInvoker.Invoke($@"/displayorder {{{BcdGuids.DevMenu}}} /addlast");
         }
 
         private static string Checksum(string file)
