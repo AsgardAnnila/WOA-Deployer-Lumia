@@ -41,16 +41,16 @@ namespace Deployer.Lumia.Tasks
             bcdPath = efiEspVolume.Root.CombineRelativeBcdPath();
             bcdInvoker = bcdInvokerFactory.Create(bcdPath);
 
-            var shouldIinstall = !IsAlreadyInstalled();
+            var shouldInstall = !IsAlreadyInstalled();
 
-            if (shouldIinstall)
+            if (shouldInstall)
             {
                 await CopyDevMenuFiles();                
             }
 
             ConfigureBcd();
 
-            if (shouldIinstall)
+            if (shouldInstall)
             {
                 await prompt.PickOptions(Resources.DeveloperMenuInstalled, new List<Option>()
                 {
