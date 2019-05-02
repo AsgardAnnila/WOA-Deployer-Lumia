@@ -29,7 +29,7 @@ namespace Deployer.Lumia
         private void SetDisplayOptions(Guid entry, Guid dummy)
         {
             invoker.Invoke($@"/displayorder {{{entry}}}");
-            invoker.Invoke($@"/displayorder {{{dummy}}} /addfirst");
+            invoker.Invoke($@"/displayorder {{{dummy}}} /addlast");
             invoker.Invoke($@"/default {{{entry}}}");
             invoker.Invoke($@"/timeout 30");
         }
